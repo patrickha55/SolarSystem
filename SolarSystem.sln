@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31825.309
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SolarSystem.WebApi", "SolarSystem.WebApi\SolarSystem.WebApi.csproj", "{6930CA01-A689-4D08-9E32-AC285BCC373D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SolarSystem.WebApi", "SolarSystem.WebApi\SolarSystem.WebApi.csproj", "{6930CA01-A689-4D08-9E32-AC285BCC373D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SolarSystem.Data", "SolarSystem.Data\SolarSystem.Data.csproj", "{CA52BB5A-F118-43C8-A1AB-DBE47D7B08EF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{6930CA01-A689-4D08-9E32-AC285BCC373D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6930CA01-A689-4D08-9E32-AC285BCC373D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6930CA01-A689-4D08-9E32-AC285BCC373D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CA52BB5A-F118-43C8-A1AB-DBE47D7B08EF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CA52BB5A-F118-43C8-A1AB-DBE47D7B08EF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CA52BB5A-F118-43C8-A1AB-DBE47D7B08EF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CA52BB5A-F118-43C8-A1AB-DBE47D7B08EF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
