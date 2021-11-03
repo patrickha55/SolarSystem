@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using SolarSystem.Data.Entities;
+using System;
 
 namespace SolarSystem.Data.Configuration
 {
@@ -18,6 +19,12 @@ namespace SolarSystem.Data.Configuration
 
             builder.Property(b => b.CreatedAt).HasColumnName("Created At").HasColumnType("datetime2").IsRequired();
             builder.Property(b => b.UpdatedAt).HasColumnName("Updated At").HasColumnType("datetime2").IsRequired();
+
+            builder.HasData(
+                new Region { Id = 1, Name = "Inner Solar System", DistanceToTheSun = 5, CreatedAt = DateTime.Now, UpdatedAt = DateTime.Now },
+                new Region { Id = 2, Name = "Outer Solar System", DistanceToTheSun = 30.1, CreatedAt = DateTime.Now, UpdatedAt = DateTime.Now },
+                new Region { Id = 3, Name = "Trans-Neptunian", DistanceToTheSun = 68, CreatedAt = DateTime.Now, UpdatedAt = DateTime.Now }
+                );
         }
     }
 }

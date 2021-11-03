@@ -28,6 +28,12 @@ namespace SolarSystem.Data.Configuration
 
             builder.HasOne(b => b.Component).WithMany(c => c.Bodies).HasForeignKey(b => b.ComponentId).OnDelete(DeleteBehavior.Cascade);
             builder.HasOne(b => b.Region).WithMany(c => c.Bodies).HasForeignKey(b => b.RegionId).OnDelete(DeleteBehavior.Cascade);
+
+            builder.HasData(
+                new Body { Id = 1, Name = "Sun", EarthMass = 332900, DistanceToTheSun = 0, ComponentId = 1, RegionId = 1, CreatedAt = DateTime.Now, UpdatedAt = DateTime.Now },
+                new Body { Id = 2, Name = "Earth", EarthMass = 1321, DistanceToTheSun = 1, ComponentId = 2, RegionId = 1, CreatedAt = DateTime.Now, UpdatedAt = DateTime.Now },
+                new Body { Id = 3, Name = "Jupiter", EarthMass = 332900, DistanceToTheSun = 5.2, ComponentId = 3, RegionId = 2, CreatedAt = DateTime.Now, UpdatedAt = DateTime.Now }
+                );
         }
     }
 }
