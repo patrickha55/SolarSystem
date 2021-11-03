@@ -10,7 +10,7 @@ using SolarSystem.Data;
 namespace SolarSystem.Data.Migrations
 {
     [DbContext(typeof(ApplicationContext))]
-    [Migration("20211103080849_Initial")]
+    [Migration("20211103092124_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -46,6 +46,22 @@ namespace SolarSystem.Data.Migrations
                         .HasFilter("[NormalizedName] IS NOT NULL");
 
                     b.ToTable("AspNetRoles");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = "D8E9592C-A965-4F5D-BD48-99F35902FD24",
+                            ConcurrencyStamp = "eea82b05-2268-4336-84fc-e2ad8e409e61",
+                            Name = "Admin",
+                            NormalizedName = "ADMIN"
+                        },
+                        new
+                        {
+                            Id = "cc3695c4-a351-43f6-a70f-81bfe584d262",
+                            ConcurrencyStamp = "a70a0a99-4b8b-4382-b0f7-cb07cbcba04b",
+                            Name = "User",
+                            NormalizedName = "USER"
+                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -195,6 +211,41 @@ namespace SolarSystem.Data.Migrations
                     b.HasIndex("RegionId");
 
                     b.ToTable("Bodies");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            ComponentId = 1,
+                            CreatedAt = new DateTime(2021, 11, 3, 16, 21, 23, 484, DateTimeKind.Local).AddTicks(1253),
+                            DistanceToTheSun = 0.0,
+                            EarthMass = 332900.0,
+                            Name = "Sun",
+                            RegionId = 1,
+                            UpdatedAt = new DateTime(2021, 11, 3, 16, 21, 23, 484, DateTimeKind.Local).AddTicks(1599)
+                        },
+                        new
+                        {
+                            Id = 2,
+                            ComponentId = 2,
+                            CreatedAt = new DateTime(2021, 11, 3, 16, 21, 23, 484, DateTimeKind.Local).AddTicks(2020),
+                            DistanceToTheSun = 1.0,
+                            EarthMass = 1321.0,
+                            Name = "Earth",
+                            RegionId = 1,
+                            UpdatedAt = new DateTime(2021, 11, 3, 16, 21, 23, 484, DateTimeKind.Local).AddTicks(2028)
+                        },
+                        new
+                        {
+                            Id = 3,
+                            ComponentId = 3,
+                            CreatedAt = new DateTime(2021, 11, 3, 16, 21, 23, 484, DateTimeKind.Local).AddTicks(2030),
+                            DistanceToTheSun = 5.2000000000000002,
+                            EarthMass = 332900.0,
+                            Name = "Jupiter",
+                            RegionId = 2,
+                            UpdatedAt = new DateTime(2021, 11, 3, 16, 21, 23, 484, DateTimeKind.Local).AddTicks(2032)
+                        });
                 });
 
             modelBuilder.Entity("SolarSystem.Data.Entities.Component", b =>
@@ -225,6 +276,32 @@ namespace SolarSystem.Data.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Components");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            CreatedAt = new DateTime(2021, 11, 3, 16, 21, 23, 478, DateTimeKind.Local).AddTicks(9247),
+                            Name = "Star",
+                            Type = "G2 main-sequence star",
+                            UpdatedAt = new DateTime(2021, 11, 3, 16, 21, 23, 478, DateTimeKind.Local).AddTicks(9623)
+                        },
+                        new
+                        {
+                            Id = 2,
+                            CreatedAt = new DateTime(2021, 11, 3, 16, 21, 23, 478, DateTimeKind.Local).AddTicks(9937),
+                            Name = "Rocky Planet",
+                            Type = "Rocky Planet",
+                            UpdatedAt = new DateTime(2021, 11, 3, 16, 21, 23, 478, DateTimeKind.Local).AddTicks(9943)
+                        },
+                        new
+                        {
+                            Id = 3,
+                            CreatedAt = new DateTime(2021, 11, 3, 16, 21, 23, 478, DateTimeKind.Local).AddTicks(9944),
+                            Name = "Gas Planet",
+                            Type = "Gas Planet",
+                            UpdatedAt = new DateTime(2021, 11, 3, 16, 21, 23, 478, DateTimeKind.Local).AddTicks(9945)
+                        });
                 });
 
             modelBuilder.Entity("SolarSystem.Data.Entities.Region", b =>
@@ -254,6 +331,32 @@ namespace SolarSystem.Data.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Regions");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            CreatedAt = new DateTime(2021, 11, 3, 16, 21, 23, 475, DateTimeKind.Local).AddTicks(6085),
+                            DistanceToTheSun = 5.0,
+                            Name = "Inner Solar System",
+                            UpdatedAt = new DateTime(2021, 11, 3, 16, 21, 23, 476, DateTimeKind.Local).AddTicks(5444)
+                        },
+                        new
+                        {
+                            Id = 2,
+                            CreatedAt = new DateTime(2021, 11, 3, 16, 21, 23, 476, DateTimeKind.Local).AddTicks(5932),
+                            DistanceToTheSun = 30.100000000000001,
+                            Name = "Outer Solar System",
+                            UpdatedAt = new DateTime(2021, 11, 3, 16, 21, 23, 476, DateTimeKind.Local).AddTicks(5938)
+                        },
+                        new
+                        {
+                            Id = 3,
+                            CreatedAt = new DateTime(2021, 11, 3, 16, 21, 23, 476, DateTimeKind.Local).AddTicks(5941),
+                            DistanceToTheSun = 68.0,
+                            Name = "Trans-Neptunian",
+                            UpdatedAt = new DateTime(2021, 11, 3, 16, 21, 23, 476, DateTimeKind.Local).AddTicks(5942)
+                        });
                 });
 
             modelBuilder.Entity("SolarSystem.Data.Entities.User", b =>
