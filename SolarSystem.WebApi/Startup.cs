@@ -27,14 +27,17 @@ namespace SolarSystem.WebApi
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.ConfigureApplicationContext(Configuration);
+
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "SolarSystem.WebApi", Version = "v1" });
             });
 
-            StartUpExtension.ConfigureCors(services);
-            StartUpExtension.ConfigureApplicationContext(services, Configuration);
+            services.ConfigureCors();
+            services.AddAuthentication();
+            services.ConfigureIdentity();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -49,8 +52,11 @@ namespace SolarSystem.WebApi
 
             app.UseHttpsRedirection();
 
+            app.UseCors(StartUpExtension.PolicyName);
+
             app.UseRouting();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>

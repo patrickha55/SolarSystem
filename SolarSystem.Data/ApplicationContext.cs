@@ -22,6 +22,7 @@ namespace SolarSystem.Data
             builder.ApplyConfiguration(new ComponentConfiguration());
             builder.ApplyConfiguration(new BodyConfiguration());
             builder.ApplyConfiguration(new UserConfiguration());
+            builder.ApplyConfiguration(new RoleConfiguration());
         }
 
         public DbSet<Region> Regions { get; set; }

@@ -218,6 +218,50 @@ namespace SolarSystem.Data.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.InsertData(
+                table: "AspNetRoles",
+                columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
+                values: new object[,]
+                {
+                    { "D8E9592C-A965-4F5D-BD48-99F35902FD24", "eea82b05-2268-4336-84fc-e2ad8e409e61", "Admin", "ADMIN" },
+                    { "cc3695c4-a351-43f6-a70f-81bfe584d262", "a70a0a99-4b8b-4382-b0f7-cb07cbcba04b", "User", "USER" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "Components",
+                columns: new[] { "Id", "Created At", "Name", "Type", "Updated At" },
+                values: new object[,]
+                {
+                    { 1, new DateTime(2021, 11, 3, 16, 21, 23, 478, DateTimeKind.Local).AddTicks(9247), "Star", "G2 main-sequence star", new DateTime(2021, 11, 3, 16, 21, 23, 478, DateTimeKind.Local).AddTicks(9623) },
+                    { 2, new DateTime(2021, 11, 3, 16, 21, 23, 478, DateTimeKind.Local).AddTicks(9937), "Rocky Planet", "Rocky Planet", new DateTime(2021, 11, 3, 16, 21, 23, 478, DateTimeKind.Local).AddTicks(9943) },
+                    { 3, new DateTime(2021, 11, 3, 16, 21, 23, 478, DateTimeKind.Local).AddTicks(9944), "Gas Planet", "Gas Planet", new DateTime(2021, 11, 3, 16, 21, 23, 478, DateTimeKind.Local).AddTicks(9945) }
+                });
+
+            migrationBuilder.InsertData(
+                table: "Regions",
+                columns: new[] { "Id", "Created At", "Distance To The Sun (AU)", "Name", "Updated At" },
+                values: new object[,]
+                {
+                    { 1, new DateTime(2021, 11, 3, 16, 21, 23, 475, DateTimeKind.Local).AddTicks(6085), 5.0, "Inner Solar System", new DateTime(2021, 11, 3, 16, 21, 23, 476, DateTimeKind.Local).AddTicks(5444) },
+                    { 2, new DateTime(2021, 11, 3, 16, 21, 23, 476, DateTimeKind.Local).AddTicks(5932), 30.100000000000001, "Outer Solar System", new DateTime(2021, 11, 3, 16, 21, 23, 476, DateTimeKind.Local).AddTicks(5938) },
+                    { 3, new DateTime(2021, 11, 3, 16, 21, 23, 476, DateTimeKind.Local).AddTicks(5941), 68.0, "Trans-Neptunian", new DateTime(2021, 11, 3, 16, 21, 23, 476, DateTimeKind.Local).AddTicks(5942) }
+                });
+
+            migrationBuilder.InsertData(
+                table: "Bodies",
+                columns: new[] { "Id", "Component Id", "Created At", "Distance To The Sun (AU)", "Earth Mass (AU)", "Name", "Region Id", "Updated At" },
+                values: new object[] { 1, 1, new DateTime(2021, 11, 3, 16, 21, 23, 484, DateTimeKind.Local).AddTicks(1253), 0.0, 332900.0, "Sun", 1, new DateTime(2021, 11, 3, 16, 21, 23, 484, DateTimeKind.Local).AddTicks(1599) });
+
+            migrationBuilder.InsertData(
+                table: "Bodies",
+                columns: new[] { "Id", "Component Id", "Created At", "Distance To The Sun (AU)", "Earth Mass (AU)", "Name", "Region Id", "Updated At" },
+                values: new object[] { 2, 2, new DateTime(2021, 11, 3, 16, 21, 23, 484, DateTimeKind.Local).AddTicks(2020), 1.0, 1321.0, "Earth", 1, new DateTime(2021, 11, 3, 16, 21, 23, 484, DateTimeKind.Local).AddTicks(2028) });
+
+            migrationBuilder.InsertData(
+                table: "Bodies",
+                columns: new[] { "Id", "Component Id", "Created At", "Distance To The Sun (AU)", "Earth Mass (AU)", "Name", "Region Id", "Updated At" },
+                values: new object[] { 3, 3, new DateTime(2021, 11, 3, 16, 21, 23, 484, DateTimeKind.Local).AddTicks(2030), 5.2000000000000002, 332900.0, "Jupiter", 2, new DateTime(2021, 11, 3, 16, 21, 23, 484, DateTimeKind.Local).AddTicks(2032) });
+
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
                 table: "AspNetRoleClaims",
