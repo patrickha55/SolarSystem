@@ -15,11 +15,11 @@ namespace SolarSystem.Data.Configuration
         {
             CreateMap<Region, RegionDTO>().ReverseMap();
             CreateMap<Region, RegionDetailDTO>().ReverseMap();
-            CreateMap<Region, ManageRegionDTO>().ReverseMap();
+            CreateMap<Region, CreateRegionDTO>().ReverseMap();
 
             CreateMap<Component, ComponentDTO>().ReverseMap();
             CreateMap<Component, ComponentDetailDTO>().ReverseMap();
-            CreateMap<Component, ManageComponentDTO>().ReverseMap();
+            CreateMap<Component, CreateComponentDTO>().ReverseMap();
 
             CreateMap<Body, BodyDTO>().ReverseMap();
             CreateMap<Body, BodyDetailDTO>().ReverseMap();

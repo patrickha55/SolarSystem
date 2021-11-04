@@ -21,11 +21,16 @@ namespace SolarSystem.Data.DTOs
         public IList<BodyDTO> Bodies { get; set; }
     }
 
-    public class ManageComponentDTO
+    public class CreateComponentDTO
     {
         [StringLength(255, MinimumLength = 1)]
         public string Name { get; set; }
         [StringLength(255, MinimumLength = 1)]
         public string Type { get; set; }
+    }
+
+    public class UpdateComponentDTO : CreateComponentDTO
+    {
+        public IList<int> BodiesId { get; set; }
     }
 }
