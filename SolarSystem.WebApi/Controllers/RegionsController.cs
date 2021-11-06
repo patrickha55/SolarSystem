@@ -55,24 +55,33 @@ namespace SolarSystem.WebApi.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<RegionDetailDTO>> Get(int id)
         {
-            if (id < 1)
-            {
-                _logger.LogError($"Invalid request in {nameof(Get)}: {id}");
-                return BadRequest("Invalid id. Please try again!");
-            }
+            if(id < 1) InvalidId(id);
 
             var region = await _unitOfWork.Regions.GetAsync(r => r.Id == id, includes: new List<string> { "Bodies" });
 
             if (region is null)
             {
-                _logger.LogError($"No region with the provided ID in {nameof(Get)}: {id}");
-                return NotFound($"There is no region with the request id of {id}");
+                return NoRegionFound(id);
             }
 
             var result = _mapper.Map<RegionDetailDTO>(region);
 
             return Ok(result);
         }
+
+        private ActionResult<RegionDetailDTO> NoRegionFound(int id)
+        {
+            _logger.LogError($"No region with the provided ID in {nameof(Get)}: {id}");
+            return NotFound($"There is no region with the request id of {id}");
+        }
+
+        private ActionResult<RegionDetailDTO> InvalidId(int id)
+        {
+            _logger.LogError($"Invalid request in {nameof(Get)}: {id}");
+            return BadRequest("Invalid id. Please try again!");
+        }
+
+
 
         // POST api/<RegionsController>
         [HttpPost]
@@ -128,11 +137,11 @@ namespace SolarSystem.WebApi.Controllers
                 return NotFound($"There is no region with the request id of {id}");
             }
 
-            var updatedRegion = _mapper.Map(request ,region);
+            var updatedRegion = _mapper.Map(request, region);
 
             _unitOfWork.Regions.Update(updatedRegion);
 
-            if(region.Bodies is not null)
+            if (region.Bodies is not null)
             {
                 foreach (var bodyId in request.BodiesId)
                 {
