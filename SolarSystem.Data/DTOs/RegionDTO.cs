@@ -21,12 +21,18 @@ namespace SolarSystem.Data.DTOs
         public IList<BodyDTO> Bodies { get; set; }
     }
 
-    public class ManageRegionDTO
+    public class CreateRegionDTO
     {
         [StringLength(255, MinimumLength = 1)]
         public string Name { get; set; }
         [Range(0.1, double.MaxValue)]
         [Display(Name = "Distance To The Sun (AU)")]
         public double DistanceToTheSun { get; set; }
+    }
+
+    public class UpdateRegionDTO : CreateRegionDTO
+    {
+        #nullable enable
+        public IList<int>? BodiesId { get; set; }
     }
 }

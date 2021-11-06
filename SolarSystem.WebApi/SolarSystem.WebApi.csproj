@@ -19,10 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Controllers\" />
-  </ItemGroup>
-
-  <ItemGroup>
+    <ProjectReference Include="..\SolarSystem.Repository\SolarSystem.Repository.csproj" />
     <ProjectReference Include="..\SolarSystem.Utility\SolarSystem.Utility.csproj" />
   </ItemGroup>
 
