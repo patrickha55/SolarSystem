@@ -26,6 +26,7 @@ namespace SolarSystem.Data.Configuration
             CreateMap<Body, ManageBodyDTO>().ReverseMap();
 
             CreateMap<User, UserDTO>().ReverseMap();
+            CreateMap<User, RegisterDTO>().ReverseMap();
         }
     }
 }
