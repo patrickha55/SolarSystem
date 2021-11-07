@@ -47,7 +47,7 @@ namespace SolarSystem.WebApi.Controllers
         }
 
         // GET: api/Components/5
-        [HttpGet("{id:int}", Name = "Get")]
+        [HttpGet("{id:int}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -104,7 +104,7 @@ namespace SolarSystem.WebApi.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult> Put(int id, [FromBody] UpdateRegionDTO request)
+        public async Task<ActionResult> Put(int id, [FromBody] UpdateComponentDTO request)
         {
             if (id < 1)
             {
