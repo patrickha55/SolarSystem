@@ -32,7 +32,12 @@ namespace SolarSystem.WebApi
         {
             services.ConfigureApplicationContext(Configuration);
 
-            services.AddControllers();
+            services.AddControllers()
+                .AddNewtonsoftJson(
+                o => o
+                .SerializerSettings
+                .ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
+            
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "SolarSystem.WebApi", Version = "v1" });
@@ -41,6 +46,7 @@ namespace SolarSystem.WebApi
             services.ConfigureCors();
             services.AddAuthentication();
             services.ConfigureIdentity();
+            services.ConfigureJwt(Configuration);
 
             // Automapper
             services.AddAutoMapper(typeof(MapperInitializer));
