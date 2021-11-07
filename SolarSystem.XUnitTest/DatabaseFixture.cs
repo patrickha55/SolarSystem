@@ -1,10 +1,12 @@
 ﻿using System;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using SolarSystem.Data;
 using SolarSystem.Data.DTOs;
 using SolarSystem.Data.Entities;
 using SolarSystem.Repository.Repository;
+using SolarSystem.WebApi.Controllers;
 
 namespace SolarSystem.XUnitTest
 {

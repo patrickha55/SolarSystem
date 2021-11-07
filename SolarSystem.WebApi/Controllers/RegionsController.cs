@@ -34,13 +34,9 @@ namespace SolarSystem.WebApi.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<IEnumerable<RegionDTO>>> Get()
         {
-            var regions = await _unitOfWork.Regions.GetAllAsync(orderBy: q => q.OrderBy(r => r.Name));
+            var regions = await _unitOfWork.Regions.GetAllAsync();
 
-            if (regions is null)
-            {
-                _logger.LogError($"No data in regions in {nameof(Get)}");
-                return NotFound("There is no data at this moment");
-            }
+            if (regions is null) NoData();
 
             var result = _mapper.Map<IEnumerable<RegionDTO>>(regions);
 
@@ -48,40 +44,23 @@ namespace SolarSystem.WebApi.Controllers
         }
 
         // GET api/<RegionsController>/5
-        [HttpGet("{id}")]
+        [HttpGet("{id:int}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<RegionDetailDTO>> Get(int id)
         {
-            if(id < 1) InvalidId(id);
+            if(id < 1) InvalidId(id, "Get");
 
             var region = await _unitOfWork.Regions.GetAsync(r => r.Id == id, includes: new List<string> { "Bodies" });
 
-            if (region is null)
-            {
-                return NoRegionFound(id);
-            }
+            if (region is null) NoRegionFound(id);
 
             var result = _mapper.Map<RegionDetailDTO>(region);
 
             return Ok(result);
         }
-
-        private ActionResult<RegionDetailDTO> NoRegionFound(int id)
-        {
-            _logger.LogError($"No region with the provided ID in {nameof(Get)}: {id}");
-            return NotFound($"There is no region with the request id of {id}");
-        }
-
-        private ActionResult<RegionDetailDTO> InvalidId(int id)
-        {
-            _logger.LogError($"Invalid request in {nameof(Get)}: {id}");
-            return BadRequest("Invalid id. Please try again!");
-        }
-
-
 
         // POST api/<RegionsController>
         [HttpPost]
@@ -92,7 +71,7 @@ namespace SolarSystem.WebApi.Controllers
         {
             if (request is null || !ModelState.IsValid)
             {
-                _logger.LogError($"Invalid request in {nameof(Post)}: {request}");
+                _logger.LogError("Invalid request in {MethodName}: {@Request}", nameof(Post), request);
                 return BadRequest("Invalid request. Please try again!");
             }
 
@@ -104,44 +83,36 @@ namespace SolarSystem.WebApi.Controllers
             await _unitOfWork.Regions.CreateAsync(region);
             await _unitOfWork.SaveAsync();
 
-            var regionDTO = _mapper.Map<RegionDTO>(region);
+            var regionDto = _mapper.Map<RegionDTO>(region);
 
-            return CreatedAtAction(nameof(Get), new { id = regionDTO.Id }, regionDTO);
+            return CreatedAtAction(nameof(Get), new { id = regionDto.Id }, regionDto);
         }
 
         // PUT api/<RegionsController>/5
-        [HttpPut("{id}")]
+        [HttpPut("{id:int}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult> Put(int id, [FromBody] UpdateRegionDTO request)
         {
-            if (id < 1)
-            {
-                _logger.LogError($"Invalid request in {nameof(Put)}: {id}");
-                return BadRequest("Invalid id. Please try again!");
-            }
+            if (id < 1) InvalidId(id, "Put");
 
             if (request is null || !ModelState.IsValid)
             {
-                _logger.LogError($"Invalid request in {nameof(Post)}: {request}");
+                _logger.LogError("Invalid request in {MethodName}: {@Request}", nameof(Put), request);
                 return BadRequest("Invalid request. Please try again!");
             }
 
             var region = await _unitOfWork.Regions.GetAsync(r => r.Id == id);
 
-            if (region is null)
-            {
-                _logger.LogError($"No region with the provided ID in {nameof(Get)}: {id}");
-                return NotFound($"There is no region with the request id of {id}");
-            }
+            if (region is null) NoRegionFound(id);
 
             var updatedRegion = _mapper.Map(request, region);
 
             _unitOfWork.Regions.Update(updatedRegion);
 
-            if (region.Bodies is not null)
+            if (request.BodiesId is not null)
             {
                 foreach (var bodyId in request.BodiesId)
                 {
@@ -155,7 +126,7 @@ namespace SolarSystem.WebApi.Controllers
 
                     if (body is null)
                     {
-                        _logger.LogError($"No body with the provided ID in {nameof(Get)}: {bodyId}");
+                        _logger.LogError("No body with the provided ID in {Method}: {Id}", nameof(Put), bodyId);
                         return NotFound($"There is no body with the request id of {bodyId}");
                     }
 
@@ -170,31 +141,41 @@ namespace SolarSystem.WebApi.Controllers
         }
 
         // DELETE api/<RegionsController>/5
-        [HttpDelete("{id}")]
+        [HttpDelete("{id:int}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult> Delete(int id)
         {
-            if (id < 1)
-            {
-                _logger.LogError($"Invalid request in {nameof(Delete)}: {id}");
-                return BadRequest("Invalid id. Please try again!");
-            }
+            if (id < 1) InvalidId(id, "Delete");
 
             var region = await _unitOfWork.Regions.GetAsync(r => r.Id == id);
 
-            if (region is null)
-            {
-                _logger.LogError($"No region with the provided ID in {nameof(Get)}: {id}");
-                return NotFound($"There is no region with the request id of {id}");
-            }
+            if (region is null) NoRegionFound(id);
 
             await _unitOfWork.Regions.DeleteAsync(id);
             await _unitOfWork.SaveAsync();
 
             return NoContent();
+        }
+        
+        private ActionResult<IEnumerable<RegionDTO>> NoData()
+        {
+            _logger.LogError("No data in regions in {MethodName}", nameof(Get));
+            return NotFound("There is no data at this moment");
+        }
+        
+        private ActionResult<RegionDetailDTO> NoRegionFound(int id)
+        {
+            _logger.LogError("No region with the provided ID in {MethodName}: {Id}", nameof(Get), id);
+            return NotFound($"There is no region with the request id of {id}");
+        }
+
+        private ActionResult<RegionDetailDTO> InvalidId(int id, string methodName)
+        {
+            _logger.LogError("Invalid request in {MethodName}: {Id}", nameof(methodName), id);
+            return BadRequest("Invalid id. Please try again!");
         }
     }
 }
