@@ -5,6 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="8.1.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="5.0.11" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="5.0.11">
       <PrivateAssets>all</PrivateAssets>
@@ -20,6 +21,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\SolarSystem.Repository\SolarSystem.Repository.csproj" />
+    <ProjectReference Include="..\SolarSystem.Services\SolarSystem.Services.csproj" />
     <ProjectReference Include="..\SolarSystem.Utility\SolarSystem.Utility.csproj" />
   </ItemGroup>
 

@@ -15,6 +15,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using SolarSystem.Services.AuthWithJwt;
 
 namespace SolarSystem.WebApi
 {
@@ -53,6 +54,7 @@ namespace SolarSystem.WebApi
 
             //DI
             services.AddTransient<IUnitOfWork, UnitOfWork>();
+            services.AddScoped<IAuthManager, AuthManager>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
