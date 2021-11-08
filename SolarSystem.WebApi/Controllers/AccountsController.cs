@@ -20,10 +20,10 @@ namespace SolarSystem.WebApi.Controllers
         private readonly IAuthManager _authManager;
         private readonly UserManager<User> _userManager;
         private readonly ILogger<AccountsController> _logger;
-        private readonly Mapper _mapper;
+        private readonly IMapper _mapper;
 
         public AccountsController(UserManager<User> userManager, IAuthManager authManager,
-            ILogger<AccountsController> logger, Mapper mapper)
+            ILogger<AccountsController> logger, IMapper mapper)
         {
             _userManager = userManager;
             _authManager = authManager;
@@ -45,7 +45,7 @@ namespace SolarSystem.WebApi.Controllers
             }
 
             var user = _mapper.Map<User>(request);
-
+            
             var result = await _userManager.CreateAsync(user, request.Password);
 
             if (result.Succeeded)
