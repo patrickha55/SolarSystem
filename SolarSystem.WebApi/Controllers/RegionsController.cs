@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 
 namespace SolarSystem.WebApi.Controllers
 {
@@ -29,6 +30,7 @@ namespace SolarSystem.WebApi.Controllers
 
         // GET: api/<RegionsController>
         [HttpGet]
+        [Authorize(Roles = "User")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -45,6 +47,7 @@ namespace SolarSystem.WebApi.Controllers
 
         // GET api/<RegionsController>/5
         [HttpGet("{id:int}")]
+        [Authorize(Roles = "User")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -64,6 +67,7 @@ namespace SolarSystem.WebApi.Controllers
 
         // POST api/<RegionsController>
         [HttpPost]
+        [Authorize(Roles = "User, Admin")]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -90,6 +94,7 @@ namespace SolarSystem.WebApi.Controllers
 
         // PUT api/<RegionsController>/5
         [HttpPut("{id:int}")]
+        [Authorize(Roles = "User, Admin")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -142,6 +147,7 @@ namespace SolarSystem.WebApi.Controllers
 
         // DELETE api/<RegionsController>/5
         [HttpDelete("{id:int}")]
+        [Authorize(Roles = "User, Admin")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]

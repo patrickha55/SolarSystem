@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
 using SolarSystem.Data;
 using SolarSystem.Data.Entities;
 
@@ -38,7 +40,9 @@ namespace SolarSystem.Utility
         /// <param name="services"></param>
         /// <param name="configuration"></param>
         public static void ConfigureApplicationContext(this IServiceCollection services, IConfiguration configuration)
-            => services.AddDbContext<ApplicationContext>(options => options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
+            => services.AddDbContext<ApplicationContext>(
+                options => options.UseSqlServer(
+                    configuration.GetConnectionString("DefaultConnection")));
 
         /// <summary>
         /// Configure identity framework.
@@ -55,6 +59,32 @@ namespace SolarSystem.Utility
 
             builder = new IdentityBuilder(builder.UserType, typeof(IdentityRole), services);
             builder.AddEntityFrameworkStores<ApplicationContext>().AddDefaultTokenProviders();
+        }
+
+        public static void ConfigureJwt(this IServiceCollection services, IConfiguration configuration)
+        {
+            var jwtSettings = configuration.GetSection("Jwt");
+            var key = Environment.GetEnvironmentVariable("KEY");
+
+            services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            }).AddJwtBearer(options =>
+            {
+                if (key != null)
+                {
+                    options.TokenValidationParameters = new TokenValidationParameters()
+                    {
+                        ValidateIssuer = true,
+                        ValidateAudience = false,
+                        ValidateLifetime = true,
+                        ValidateIssuerSigningKey = true,
+                        ValidIssuer = jwtSettings.GetSection("Issuer").Value,
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key))
+                    };
+                }
+            });
         }
     }
 }
