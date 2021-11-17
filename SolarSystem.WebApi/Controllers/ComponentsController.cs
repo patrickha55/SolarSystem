@@ -31,9 +31,18 @@ namespace SolarSystem.WebApi.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<IEnumerable<ComponentDTO>>> Get()
+#nullable enable
+        public async Task<ActionResult<IEnumerable<ComponentDTO>>> Get([FromQuery] PaginationParam? request)
         {
-            var components = await _unitOfWork.Components.GetAllAsync();
+            if (request is null)
+                request = new();
+            else if (request.PageNumber < 1 || request.PageSize < 1)
+            {
+                _logger.LogError($"Invalid request in {nameof(Get)}");
+                return BadRequest($"Invalid Page Size or Page Number. Please try again.");
+            }
+
+            var components = await _unitOfWork.Components.GetAllAsync(request);
 
             if (components is null)
             {
@@ -45,6 +54,7 @@ namespace SolarSystem.WebApi.Controllers
 
             return Ok(componentDtos);
         }
+#nullable disable
 
         // GET: api/Components/5
         [HttpGet("{id:int}")]

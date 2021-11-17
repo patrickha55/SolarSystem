@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SolarSystem.Data;
+using SolarSystem.Data.DTOs;
 using SolarSystem.Data.Entities;
 using SolarSystem.Repository.IRepository;
 using System;
@@ -7,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
+using X.PagedList;
 
 namespace SolarSystem.Repository.Repository
 {
@@ -20,7 +22,7 @@ namespace SolarSystem.Repository.Repository
             db = this.context.Set<T>();
         }
 
-        public async Task<IList<T>> GetAllAsync(Expression<Func<T, bool>> expression = null, Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null, List<string> includes = null)
+        public async Task<IPagedList<T>> GetAllAsync(PaginationParam request, Expression<Func<T, bool>> expression = null, Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null, List<string> includes = null)
         {
             IQueryable<T> query = db;
 
@@ -40,7 +42,7 @@ namespace SolarSystem.Repository.Repository
             orderBy?.Invoke(query = orderBy(query));
 
             // ToDo: look up why as no tracking
-            return await query.AsNoTracking().ToListAsync();
+            return await query.AsNoTracking().ToPagedListAsync(request.PageNumber, request.PageSize);
         }
 
         public async Task<T> GetAsync(Expression<Func<T, bool>> expression, List<string> includes = null)

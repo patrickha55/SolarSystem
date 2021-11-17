@@ -1,15 +1,18 @@
-﻿using System;
+﻿using SolarSystem.Data.DTOs;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
+using X.PagedList;
 
 namespace SolarSystem.Repository.IRepository
 {
     public interface IGenericRepository<TEntity> where TEntity : class 
     {
-        Task<IList<TEntity>> GetAllAsync(
+        Task<IPagedList<TEntity>> GetAllAsync(
+            PaginationParam request,
             Expression<Func<TEntity, bool>> expression = null,
             Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy = null,
             List<string> includes = null

@@ -29,7 +29,7 @@ namespace SolarSystem.XUnitTest
         [Fact, Order(1)]
         public async Task GetRegions()
         {
-            var result = await _fixture._unitOfWork.Regions.GetAllAsync();
+            var result = await _fixture._unitOfWork.Regions.GetAllAsync(null);
 
             Assert.Equal(3, result.Count);
 
@@ -42,7 +42,7 @@ namespace SolarSystem.XUnitTest
         [Fact, Order(2)]
         public async Task GetRegionsWithExpression()
         {
-            var result = await _fixture._unitOfWork.Regions.GetAllAsync(r => r.Name == "Inner Solar System");
+            var result = await _fixture._unitOfWork.Regions.GetAllAsync(null, r => r.Name == "Inner Solar System");
 
             Assert.Equal(1, result.Count);
 
@@ -54,6 +54,7 @@ namespace SolarSystem.XUnitTest
         {
             var result =
                 await _fixture._unitOfWork.Regions.GetAllAsync(
+                    null,
                     null,
                     q => q.OrderByDescending(r => r.Name),
                     new List<string>() {"Bodies"});
@@ -103,7 +104,7 @@ namespace SolarSystem.XUnitTest
             await _fixture._unitOfWork.Regions.CreateAsync(region);
             await _fixture._unitOfWork.SaveAsync();
 
-            var regions = await _fixture._unitOfWork.Regions.GetAllAsync();
+            var regions = await _fixture._unitOfWork.Regions.GetAllAsync(null);
 
             Assert.Equal(4, regions.Count);
 
