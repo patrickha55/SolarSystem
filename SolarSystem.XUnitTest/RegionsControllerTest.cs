@@ -94,6 +94,47 @@ namespace SolarSystem.XUnitTest
             result.Value.Should().BeEquivalentTo(region, o => o.ComparingByMembers<Region>());
         }
 
+        [Fact]
+        public async void Get_SingeleRegion_Should_Return_NotFoundResult()
+        {
+            unitOfWorkMock.Setup(
+                repo => repo.Regions.GetAsync(
+                    It.IsAny<Expression<Func<Region, bool>>>(),
+                    It.IsAny<List<string>>()))
+                .ReturnsAsync(value: null);
+
+            var controller = new RegionsController(unitOfWorkMock.Object, loggerMock.Object, mapper);
+
+            var actionResult = await controller.Get(new Random().Next(1, 1000));
+
+            actionResult.Result.Should().BeOfType<NotFoundObjectResult>();
+            actionResult.Value.Should().BeNull();
+        }
+
+        [Fact]
+        public async void Post_Should_ReturnsCreatedRegion()
+        {
+            var request = new CreateRegionDTO
+            {
+                Name = Guid.NewGuid().ToString(),
+                DistanceToTheSun = new Random().Next(1, 1000)
+            };
+
+            unitOfWorkMock.Setup(repo => repo.Regions.CreateAsync(It.IsAny<Region>())).Callback<Region>(r => r.Id = new Random().Next(1, 1000));
+
+            var controller = new RegionsController(unitOfWorkMock.Object, loggerMock.Object, mapper);
+
+            var actionResult = await controller.Post(request);
+
+            var createdRegion = (actionResult.Result as CreatedAtActionResult).Value as RegionDTO;
+
+            createdRegion.Should().NotBeNull();
+            createdRegion.Id.Should().BeGreaterThan(0);
+            createdRegion.Should().BeEquivalentTo(request, o => o.ComparingByMembers<CreateRegionDTO>());
+            createdRegion.CreatedAt.Should().BeCloseTo(DateTime.Now, TimeSpan.FromSeconds(1000));
+            createdRegion.UpdatedAt.Should().BeCloseTo(DateTime.Now, TimeSpan.FromSeconds(1000));
+        }
+
         public Region GetRegion() => new Region
         {
             Id = 1,
