@@ -12,8 +12,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
 using X.PagedList;
 using Xunit;
 
@@ -68,7 +66,7 @@ namespace SolarSystem.XUnitTest
 
             var controller = new RegionsController(unitOfWorkMock.Object, loggerMock.Object, mapper);
 
-            var actionResult = await controller.Get(new PaginationParam { PageNumber = 1 , PageSize = 5});
+            var actionResult = await controller.Get(new PaginationParam { PageNumber = 1, PageSize = 5 });
 
             actionResult.Result.Should().BeOfType<NotFoundObjectResult>();
         }
@@ -135,6 +133,84 @@ namespace SolarSystem.XUnitTest
             createdRegion.UpdatedAt.Should().BeCloseTo(DateTime.Now, TimeSpan.FromSeconds(1000));
         }
 
+        [Fact]
+        public async void Post_WithInvalidRequest_ReturnsBadRequestObjectResult()
+        {
+            CreateRegionDTO request = null;
+
+            var controller = new RegionsController(unitOfWorkMock.Object, loggerMock.Object, mapper);
+
+            var actionResult = await controller.Post(request);
+
+            actionResult.Result.Should().BeOfType<BadRequestObjectResult>();
+        }
+
+        [Fact]
+        public async void Put_WithExistingRegion_ReturnsNoContentResult()
+        {
+            var request = new UpdateRegionDTO
+            {
+                Name = Guid.NewGuid().ToString(),
+                DistanceToTheSun = new Random().Next(1, 1000),
+                BodiesId = null
+            };
+
+            var existingRegion = GetRegion();
+
+            unitOfWorkMock.Setup(repo => repo.Regions.GetAsync(It.IsAny<Expression<Func<Region, bool>>>(), It.IsAny<List<string>>())).ReturnsAsync(value: existingRegion);
+
+            var controller = new RegionsController(unitOfWorkMock.Object, loggerMock.Object, mapper);
+
+            var actionResult = await controller.Put(new Random().Next(1, 1000), request);
+
+            actionResult.Should().BeOfType<NoContentResult>();
+        }
+
+        [Fact]
+        public async void Put_WithExistingRegion_ReturnsNotFound()
+        {
+            var request = new UpdateRegionDTO
+            {
+                Name = Guid.NewGuid().ToString(),
+                DistanceToTheSun = new Random().Next(1, 1000),
+                BodiesId = null
+            };
+
+            unitOfWorkMock.Setup(repo => repo.Regions.GetAsync(It.IsAny<Expression<Func<Region, bool>>>(), It.IsAny<List<string>>())).ReturnsAsync(value: null);
+
+            var controller = new RegionsController(unitOfWorkMock.Object, loggerMock.Object, mapper);
+
+            var actionResult = await controller.Put(new Random().Next(1, 1000), request);
+
+            actionResult.Should().BeOfType<NotFoundObjectResult>();
+        }
+
+        [Fact]
+        public async void Delete_WithProvidedId_ReturnsNoContent()
+        {
+            var existingRegion = GetRegion();
+
+            unitOfWorkMock.Setup(repo => repo.Regions.GetAsync(It.IsAny<Expression<Func<Region, bool>>>(), It.IsAny<List<string>>())).ReturnsAsync(value: existingRegion);
+
+            var controller = new RegionsController(unitOfWorkMock.Object, loggerMock.Object, mapper);
+
+            var actionResult = await controller.Delete(new Random().Next(1, 1000));
+
+            actionResult.Should().BeOfType<NoContentResult>();
+        }
+
+        [Fact]
+        public async void Delete_WithProvidedId_ReturnsNotFound()
+        {
+            unitOfWorkMock.Setup(repo => repo.Regions.GetAsync(It.IsAny<Expression<Func<Region, bool>>>(), It.IsAny<List<string>>())).ReturnsAsync(value: null);
+
+            var controller = new RegionsController(unitOfWorkMock.Object, loggerMock.Object, mapper);
+
+            var actionResult = await controller.Delete(new Random().Next(1, 1000));
+
+            actionResult.Should().BeOfType<NotFoundObjectResult>();
+        }
+
         public Region GetRegion() => new Region
         {
             Id = 1,
@@ -158,7 +234,7 @@ namespace SolarSystem.XUnitTest
                 CreatedAt = DateTime.Now,
                 UpdatedAt = DateTime.Now
             });
-            
+
             regions.Add(new Region
             {
                 Id = 2,
