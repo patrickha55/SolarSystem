@@ -1,7 +1,9 @@
 ﻿using AutoMapper;
 using FluentAssertions;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
+using SolarSystem.Data.Configuration;
 using SolarSystem.Data.DTOs;
 using SolarSystem.Data.Entities;
 using SolarSystem.Repository.IRepository;
@@ -9,8 +11,7 @@ using SolarSystem.WebApi.Controllers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Linq.Expressions;
 using X.PagedList;
 using Xunit;
 
@@ -20,13 +21,13 @@ namespace SolarSystem.XUnitTest
     {
         private readonly Mock<IUnitOfWork> unitOfWorkMock;
         private readonly Mock<ILogger<RegionsController>> loggerMock;
-        private readonly Mock<IMapper> mapperMock;
+        private readonly IMapper mapper;
 
         public RegionsControllerTest()
         {
             unitOfWorkMock = new Mock<IUnitOfWork>();
             loggerMock = new Mock<ILogger<RegionsController>>();
-            mapperMock = new Mock<IMapper>();
+            mapper = new Mapper(new MapperConfiguration(cfg => cfg.AddProfile(new MapperInitializer())));
         }
 
         [Fact]
@@ -35,17 +36,192 @@ namespace SolarSystem.XUnitTest
             var requestParam = new PaginationParam { PageNumber = 1, PageSize = 5 };
             var expectedRegions = GetRegions();
 
-            unitOfWorkMock.Setup<Task<IPagedList<Region>>>(repo => repo.Regions.GetAllAsync(requestParam, null, null, null))
-                .ReturnsAsync(value: expectedRegions);
+            unitOfWorkMock.Setup(
+                repo => repo.Regions.GetAllAsync(
+                    It.IsAny<PaginationParam>(),
+                    It.IsAny<Expression<Func<Region, bool>>>(),
+                    It.IsAny<Func<IQueryable<Region>, IOrderedQueryable<Region>>>(),
+                    It.IsAny<List<string>>()))
+                .ReturnsAsync(value: expectedRegions.Item1);
 
-            var controller = new RegionsController(unitOfWorkMock.Object, loggerMock.Object, mapperMock.Object);
+            var controller = new RegionsController(unitOfWorkMock.Object, loggerMock.Object, mapper);
 
-            var result = await controller.Get(null);
+            var actionResult = await controller.Get(requestParam);
 
-            result.Value.Should().AllBeEquivalentTo(expectedRegions, o => o.ComparingByMembers<Region>());
+            var result = actionResult.Result as OkObjectResult;
+
+            result.Value.Should().BeEquivalentTo(expectedRegions.Item2, o => o.ComparingByMembers<Region>().ExcludingMissingMembers());
         }
 
-        public IPagedList<Region> GetRegions()
+        [Fact]
+        public async void Get_Should_Return_NotFoundResult()
+        {
+            unitOfWorkMock.Setup(
+                repo => repo.Regions.GetAllAsync(
+                    It.IsAny<PaginationParam>(),
+                    It.IsAny<Expression<Func<Region, bool>>>(),
+                    It.IsAny<Func<IQueryable<Region>, IOrderedQueryable<Region>>>(),
+                    It.IsAny<List<string>>()))
+                .ReturnsAsync(value: null);
+
+            var controller = new RegionsController(unitOfWorkMock.Object, loggerMock.Object, mapper);
+
+            var actionResult = await controller.Get(new PaginationParam { PageNumber = 1, PageSize = 5 });
+
+            actionResult.Result.Should().BeOfType<NotFoundObjectResult>();
+        }
+
+        [Fact]
+        public async void Get_Should_Return_AnExpectedResut()
+        {
+            var region = GetRegion();
+
+            unitOfWorkMock.Setup(
+                repo => repo.Regions.GetAsync(
+                    It.IsAny<Expression<Func<Region, bool>>>(),
+                    It.IsAny<List<string>>()))
+                .ReturnsAsync(value: region);
+
+            var controller = new RegionsController(unitOfWorkMock.Object, loggerMock.Object, mapper);
+
+            var actionResult = await controller.Get(new Random().Next(1, 1000));
+
+            var result = actionResult.Result as OkObjectResult;
+
+            result.Value.Should().BeOfType<RegionDetailDTO>();
+            result.Value.Should().BeEquivalentTo(region, o => o.ComparingByMembers<Region>());
+        }
+
+        [Fact]
+        public async void Get_SingeleRegion_Should_Return_NotFoundResult()
+        {
+            unitOfWorkMock.Setup(
+                repo => repo.Regions.GetAsync(
+                    It.IsAny<Expression<Func<Region, bool>>>(),
+                    It.IsAny<List<string>>()))
+                .ReturnsAsync(value: null);
+
+            var controller = new RegionsController(unitOfWorkMock.Object, loggerMock.Object, mapper);
+
+            var actionResult = await controller.Get(new Random().Next(1, 1000));
+
+            actionResult.Result.Should().BeOfType<NotFoundObjectResult>();
+            actionResult.Value.Should().BeNull();
+        }
+
+        [Fact]
+        public async void Post_Should_ReturnsCreatedRegion()
+        {
+            var request = new CreateRegionDTO
+            {
+                Name = Guid.NewGuid().ToString(),
+                DistanceToTheSun = new Random().Next(1, 1000)
+            };
+
+            unitOfWorkMock.Setup(repo => repo.Regions.CreateAsync(It.IsAny<Region>())).Callback<Region>(r => r.Id = new Random().Next(1, 1000));
+
+            var controller = new RegionsController(unitOfWorkMock.Object, loggerMock.Object, mapper);
+
+            var actionResult = await controller.Post(request);
+
+            var createdRegion = (actionResult.Result as CreatedAtActionResult).Value as RegionDTO;
+
+            createdRegion.Should().NotBeNull();
+            createdRegion.Id.Should().BeGreaterThan(0);
+            createdRegion.Should().BeEquivalentTo(request, o => o.ComparingByMembers<CreateRegionDTO>());
+            createdRegion.CreatedAt.Should().BeCloseTo(DateTime.Now, TimeSpan.FromSeconds(1000));
+            createdRegion.UpdatedAt.Should().BeCloseTo(DateTime.Now, TimeSpan.FromSeconds(1000));
+        }
+
+        [Fact]
+        public async void Post_WithInvalidRequest_ReturnsBadRequestObjectResult()
+        {
+            CreateRegionDTO request = null;
+
+            var controller = new RegionsController(unitOfWorkMock.Object, loggerMock.Object, mapper);
+
+            var actionResult = await controller.Post(request);
+
+            actionResult.Result.Should().BeOfType<BadRequestObjectResult>();
+        }
+
+        [Fact]
+        public async void Put_WithExistingRegion_ReturnsNoContentResult()
+        {
+            var request = new UpdateRegionDTO
+            {
+                Name = Guid.NewGuid().ToString(),
+                DistanceToTheSun = new Random().Next(1, 1000),
+                BodiesId = null
+            };
+
+            var existingRegion = GetRegion();
+
+            unitOfWorkMock.Setup(repo => repo.Regions.GetAsync(It.IsAny<Expression<Func<Region, bool>>>(), It.IsAny<List<string>>())).ReturnsAsync(value: existingRegion);
+
+            var controller = new RegionsController(unitOfWorkMock.Object, loggerMock.Object, mapper);
+
+            var actionResult = await controller.Put(new Random().Next(1, 1000), request);
+
+            actionResult.Should().BeOfType<NoContentResult>();
+        }
+
+        [Fact]
+        public async void Put_WithExistingRegion_ReturnsNotFound()
+        {
+            var request = new UpdateRegionDTO
+            {
+                Name = Guid.NewGuid().ToString(),
+                DistanceToTheSun = new Random().Next(1, 1000),
+                BodiesId = null
+            };
+
+            unitOfWorkMock.Setup(repo => repo.Regions.GetAsync(It.IsAny<Expression<Func<Region, bool>>>(), It.IsAny<List<string>>())).ReturnsAsync(value: null);
+
+            var controller = new RegionsController(unitOfWorkMock.Object, loggerMock.Object, mapper);
+
+            var actionResult = await controller.Put(new Random().Next(1, 1000), request);
+
+            actionResult.Should().BeOfType<NotFoundObjectResult>();
+        }
+
+        [Fact]
+        public async void Delete_WithProvidedId_ReturnsNoContent()
+        {
+            var existingRegion = GetRegion();
+
+            unitOfWorkMock.Setup(repo => repo.Regions.GetAsync(It.IsAny<Expression<Func<Region, bool>>>(), It.IsAny<List<string>>())).ReturnsAsync(value: existingRegion);
+
+            var controller = new RegionsController(unitOfWorkMock.Object, loggerMock.Object, mapper);
+
+            var actionResult = await controller.Delete(new Random().Next(1, 1000));
+
+            actionResult.Should().BeOfType<NoContentResult>();
+        }
+
+        [Fact]
+        public async void Delete_WithProvidedId_ReturnsNotFound()
+        {
+            unitOfWorkMock.Setup(repo => repo.Regions.GetAsync(It.IsAny<Expression<Func<Region, bool>>>(), It.IsAny<List<string>>())).ReturnsAsync(value: null);
+
+            var controller = new RegionsController(unitOfWorkMock.Object, loggerMock.Object, mapper);
+
+            var actionResult = await controller.Delete(new Random().Next(1, 1000));
+
+            actionResult.Should().BeOfType<NotFoundObjectResult>();
+        }
+
+        public Region GetRegion() => new Region
+        {
+            Id = 1,
+            Name = Guid.NewGuid().ToString(),
+            DistanceToTheSun = new Random().Next(1, 1000),
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow,
+            Bodies = new List<Body>()
+        };
+
+        public (IPagedList<Region>, List<Region>) GetRegions()
         {
             var regions = new List<Region>();
             var rand = new Random();
@@ -58,7 +234,7 @@ namespace SolarSystem.XUnitTest
                 CreatedAt = DateTime.Now,
                 UpdatedAt = DateTime.Now
             });
-            
+
             regions.Add(new Region
             {
                 Id = 2,
@@ -68,7 +244,7 @@ namespace SolarSystem.XUnitTest
                 UpdatedAt = DateTime.Now
             });
 
-            return regions.ToPagedList(pageNumber: 1, pageSize: 5);
+            return (regions.ToPagedList(pageNumber: 1, pageSize: 5), regions);
         }
     }
 }

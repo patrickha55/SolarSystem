@@ -19,40 +19,24 @@ namespace SolarSystem.Utility
 {
     public static class StartUpExtension
     {
-        /// <summary>
-        /// Name of the policy use for Cors policy.
-        /// </summary>
-        public const string PolicyName = "AllowAll";
+        public const string CorsPolicyName = "AllowAll";
 
-        /// <summary>
-        /// Configre cors for application
-        /// </summary>
-        /// <param name="services"></param>
         public static void ConfigureCors(this IServiceCollection services)
         {
             services.AddCors(c =>
             {
-                c.AddPolicy(PolicyName, builder =>
+                c.AddPolicy(CorsPolicyName, builder =>
                 {
                     builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
                 });
             });
         }
 
-        /// <summary>
-        /// Configure application context for EF core.
-        /// </summary>
-        /// <param name="services"></param>
-        /// <param name="configuration"></param>
         public static void ConfigureApplicationContext(this IServiceCollection services, IConfiguration configuration)
             => services.AddDbContext<ApplicationContext>(
                 options => options.UseSqlServer(
                     configuration.GetConnectionString("DefaultConnection")));
 
-        /// <summary>
-        /// Configure identity framework.
-        /// </summary>
-        /// <param name="services"></param>
         public static void ConfigureIdentity(this IServiceCollection services)
         {
             var builder = services.AddIdentityCore<User>(o =>
@@ -89,6 +73,29 @@ namespace SolarSystem.Utility
                         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key))
                     };
                 }
+            });
+        }
+
+        public static void ConfigureExceptionHandler(this IApplicationBuilder app)
+        {
+            app.UseExceptionHandler(error =>
+            {
+                error.Run(async context =>
+                {
+                    context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+                    context.Response.ContentType = "application/json";
+                    var contextFeature = context.Features.Get<IExceptionHandlerFeature>();
+                    if (contextFeature is not null)
+                    {
+                        Log.Error(contextFeature.Error, "Something Went Wrong in the {Location}", contextFeature.Error.Source );
+
+                        await context.Response.WriteAsync(new Error
+                        {
+                            StatusCode = context.Response.StatusCode,
+                            Message = "Internal Server Error. Please Try Again Later."
+                        }.ToString());
+                    }
+                });
             });
         }
     }

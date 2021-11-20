@@ -71,7 +71,7 @@ namespace SolarSystem.WebApi
             app.UseHttpsRedirection();
 
             app.UseCors(StartUpExtension.CorsPolicyName);
-            app.ConfigureExceptionHandler();
+            //app.ConfigureExceptionHandler();
             
             app.UseRouting();
 
