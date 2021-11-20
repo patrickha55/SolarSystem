@@ -45,7 +45,7 @@ namespace SolarSystem.WebApi.Controllers
                 return BadRequest($"Invalid Page Size or Page Number. Please try again.");
             }
 
-            var regions = await _unitOfWork.Regions.GetAllAsync(request, null, q => q.OrderBy(r => r.DistanceToTheSun));
+            var regions = await _unitOfWork.Regions.GetAllAsync(request);
 
             if (regions is null)
             {
